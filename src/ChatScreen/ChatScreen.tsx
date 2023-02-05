@@ -20,9 +20,14 @@ function ChatScreen() {
   const {other, userIds} = params;
 
   const {user: me} = useContext(AuthContext);
-  const {loadingChat, chat, sendMessage} = useChat(userIds);
+  const {loadingChat, chat, sendMessage, messages, loadingMessages} =
+    useChat(userIds);
 
   const [text, setText] = useState('');
+
+  const loading = loadingChat || loadingMessages;
+
+  console.log('messagess', messages);
 
   //   메세지 보내기
   const onPressMessage = useCallback(() => {
@@ -63,6 +68,19 @@ function ChatScreen() {
             )}
           />
         </View>
+        {/* 메세지 리스트 */}
+        <FlatList
+          data={messages}
+          renderItem={({item: message}) => {
+            return (
+              <View>
+                <Text>{message.user.name}</Text>
+                <Text>{message.text}</Text>
+                <Text>{message.createdAt?.toISOString()}</Text>
+              </View>
+            );
+          }}
+        />
         {/* 메세지 */}
 
         <View style={{backgroundColor: 'pink'}}>
@@ -79,11 +97,11 @@ function ChatScreen() {
         </View>
       </View>
     );
-  }, [chat, onChangeText, onPressMessage, text]);
+  }, [chat, messages, onChangeText, onPressMessage, text]);
   return (
     <Screen title={other.name}>
       <View>
-        {loadingChat ? (
+        {loading ? (
           <View>
             <ActivityIndicator />
           </View>

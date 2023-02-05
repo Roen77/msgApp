@@ -12,8 +12,11 @@ const useChat = (userIds: string[]) => {
   const [loadingChat, setLoadingChat] = useState(false);
 
   //   메세지보내기
-  const [message, setMessage] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [sending, setSending] = useState(false);
+
+  //   메세지 가져오기
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   const loadChat = useCallback(async () => {
     try {
@@ -81,7 +84,7 @@ const useChat = (userIds: string[]) => {
           .collection(Collections.MESSAGES)
           .add(data);
 
-        setMessage(prev =>
+        setMessages(prev =>
           prev.concat([
             {
               id: doc.id,
@@ -96,12 +99,46 @@ const useChat = (userIds: string[]) => {
     [chat?.id],
   );
 
+  //   메세지 가져오는 기능
+  const loadMessages = useCallback(async (chatId: string) => {
+    try {
+      setLoadingMessages(true);
+      const messageSnapShot = await firestore()
+        .collection(Collections.CHATS)
+        .doc(chatId)
+        .collection(Collections.MESSAGES)
+        .orderBy('createdAt', 'asc')
+        .get();
+
+      const ms = messageSnapShot.docs.map<Message>(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          user: data.user,
+          text: data.text,
+          createdAt: data.createdAt.toDate(),
+        };
+      });
+
+      setMessages(ms);
+    } finally {
+      setLoadingMessages(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (chat?.id != null) {
+      loadMessages(chat.id);
+    }
+  }, [chat?.id, loadMessages]);
   return {
     chat,
     loadingChat,
     sendMessage,
     sending,
-    message,
+    messages,
+    loadMessages,
+    loadingMessages,
   };
 };
 
