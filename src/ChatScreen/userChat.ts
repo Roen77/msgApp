@@ -85,12 +85,12 @@ const useChat = (userIds: string[]) => {
           .add(data);
 
         setMessages(prev =>
-          prev.concat([
+          [
             {
               id: doc.id,
               ...data,
             },
-          ]),
+          ].concat(prev),
         );
       } finally {
         setSending(false);
@@ -107,7 +107,7 @@ const useChat = (userIds: string[]) => {
         .collection(Collections.CHATS)
         .doc(chatId)
         .collection(Collections.MESSAGES)
-        .orderBy('createdAt', 'asc')
+        .orderBy('createdAt', 'desc')
         .get();
 
       const ms = messageSnapShot.docs.map<Message>(doc => {

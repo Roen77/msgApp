@@ -13,6 +13,7 @@ import Screen from '../components/Screen';
 import Colors from '../modules/Colors';
 ('');
 import {RootStackParamList} from '../types';
+import Message from './Message';
 import useChat from './userChat';
 
 function ChatScreen() {
@@ -46,8 +47,8 @@ function ChatScreen() {
       return null;
     }
     return (
-      <View>
-        <View>
+      <View style={{flex: 1}}>
+        <View style={{flex: 0.8}}>
           <Text>대화상대</Text>
           <FlatList
             horizontal
@@ -67,40 +68,46 @@ function ChatScreen() {
               </View>
             )}
           />
+          {/* 메세지 리스트 */}
+          <FlatList
+            inverted
+            data={messages}
+            renderItem={({item: message}) => {
+              return (
+                <Message
+                  name={message.user.name}
+                  text={message.text}
+                  createdAt={message.createdAt}
+                  isOtherMessage={message.user.userId !== me?.userId}
+                />
+              );
+            }}
+          />
         </View>
-        {/* 메세지 리스트 */}
-        <FlatList
-          data={messages}
-          renderItem={({item: message}) => {
-            return (
-              <View>
-                <Text>{message.user.name}</Text>
-                <Text>{message.text}</Text>
-                <Text>{message.createdAt?.toISOString()}</Text>
-              </View>
-            );
-          }}
-        />
+
         {/* 메세지 */}
 
-        <View style={{backgroundColor: 'pink'}}>
-          <View>
-            <TextInput
-              style={{borderWidth: 1, height: 50}}
-              onChangeText={onChangeText}
-              value={text}
-            />
-            <TouchableOpacity onPress={onPressMessage}>
-              <Text>send</Text>
-            </TouchableOpacity>
-          </View>
+        <View
+          style={{
+            backgroundColor: 'pink',
+
+            flex: 0.2,
+          }}>
+          <TextInput
+            style={{borderWidth: 1, height: 50}}
+            onChangeText={onChangeText}
+            value={text}
+          />
+          <TouchableOpacity onPress={onPressMessage}>
+            <Text>send</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
   }, [chat, messages, onChangeText, onPressMessage, text]);
   return (
     <Screen title={other.name}>
-      <View>
+      <>
         {loading ? (
           <View>
             <ActivityIndicator />
@@ -108,7 +115,7 @@ function ChatScreen() {
         ) : (
           renderChat()
         )}
-      </View>
+      </>
     </Screen>
   );
 }
