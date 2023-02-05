@@ -104,7 +104,7 @@ function ChatScreen() {
         </View>
       </View>
     );
-  }, [chat, messages, onChangeText, onPressMessage, text]);
+  }, [chat, me?.userId, messages, onChangeText, onPressMessage, text]);
   return (
     <Screen title={other.name}>
       <>

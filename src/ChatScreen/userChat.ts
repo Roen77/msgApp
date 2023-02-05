@@ -64,6 +64,13 @@ const useChat = (userIds: string[]) => {
     loadChat();
   }, [loadChat]);
 
+  //   메세지 추가시 중복걸러주는 함수
+  const addNewMessages = useCallback((newMessages: Message[]) => {
+    setMessages(prev => {
+      return _.uniqBy(newMessages.concat(prev), m => m.id);
+    });
+  }, []);
+
   //   메세지 보내기
   const sendMessage = useCallback(
     async (text: string, user: User) => {
@@ -84,19 +91,25 @@ const useChat = (userIds: string[]) => {
           .collection(Collections.MESSAGES)
           .add(data);
 
-        setMessages(prev =>
-          [
-            {
-              id: doc.id,
-              ...data,
-            },
-          ].concat(prev),
-        );
+        addNewMessages([
+          {
+            id: doc.id,
+            ...data,
+          },
+        ]);
+        // setMessages(prev =>
+        //   [
+        //     {
+        //       id: doc.id,
+        //       ...data,
+        //     },
+        //   ].concat(prev),
+        // );
       } finally {
         setSending(false);
       }
     },
-    [chat?.id],
+    [addNewMessages, chat?.id],
   );
 
   //   메세지 가져오는 기능
@@ -126,11 +139,48 @@ const useChat = (userIds: string[]) => {
     }
   }, []);
 
+  //   useEffect(() => {
+  //     if (chat?.id != null) {
+  //       loadMessages(chat.id);
+  //     }
+  //   }, [chat?.id, loadMessages]);
+
+  //   실시간으로 메세지 가져오는 기능
   useEffect(() => {
-    if (chat?.id != null) {
-      loadMessages(chat.id);
+    if (chat?.id == null) {
+      return;
     }
-  }, [chat?.id, loadMessages]);
+    setLoadingMessages(true);
+    const unsubscribe = firestore()
+      .collection(Collections.CHATS)
+      .doc(chat?.id)
+      .collection(Collections.MESSAGES)
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot => {
+        const newMessages = snapshot
+          .docChanges()
+          .filter(({type}) => type === 'added')
+          .map(docChange => {
+            const {doc} = docChange;
+            const docData = doc.data();
+            const newMessage: Message = {
+              id: doc.id,
+              text: docData.text,
+              user: docData.user,
+              createdAt: docData.createdAt.toDate(),
+            };
+
+            return newMessage;
+          });
+
+        addNewMessages(newMessages);
+        setLoadingMessages(false);
+      });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [addNewMessages, chat?.id]);
   return {
     chat,
     loadingChat,
