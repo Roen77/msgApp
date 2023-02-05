@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, {useEffect} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -24,14 +24,44 @@ import {RootStackParamList} from './src/types';
 import SignupScreen from './src/SignupScreen/SignupScreen';
 import AuthProvider from './src/components/AuthProvider';
 import SigninScreen from './src/SigninScreen/SigninScreen';
+import AuthContext from './src/components/AurhContext';
+import HomeScreen from './src/HomeScreen/HomeScreen';
+import LoadingScreen from './src/LoadingScreen/LoadingScreen';
+import ChatScreen from './src/ChatScreen/ChatScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Screens = () => {
+  const {user, processingSignin, processingSignup, initialized} =
+    useContext(AuthContext);
+
+  const renderRootStack = useCallback(() => {
+    if (user != null && !processingSignin && !processingSignup) {
+      // login
+      return (
+        <>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Chat" component={ChatScreen} />
+        </>
+      );
+    }
+    //logout
+    return (
+      <>
+        <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="Signin" component={SigninScreen} />
+      </>
+    );
+  }, [processingSignin, processingSignup, user]);
+
+  if (!initialized) {
+    return <Stack.Screen name="Loading" component={LoadingScreen} />;
+  }
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Signin" component={SigninScreen} />
+        {renderRootStack()}
+        {/* <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="Signin" component={SigninScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );

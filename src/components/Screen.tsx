@@ -15,6 +15,7 @@ interface ScreenProps {
 }
 function Screen({title, children}: ScreenProps) {
   const {goBack, canGoBack} = useNavigation();
+
   const onPressBackButton = useCallback(() => {
     goBack();
   }, [goBack]);
