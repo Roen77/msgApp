@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/native';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
@@ -12,8 +13,12 @@ import {
 import AuthContext from '../components/AurhContext';
 import Screen from '../components/Screen';
 import Colors from '../modules/Colors';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types';
 
 function SignupScreen() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {signup, processingSignup} = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,13 +58,13 @@ function SignupScreen() {
   //   signup
   const onPressSignupButton = useCallback(async () => {
     try {
-      await signup(email, email, name);
+      await signup(email, password, name);
       console.log('성공');
     } catch (error) {
       console.log('error', error);
       Alert.alert('error');
     }
-  }, [email, name, signup]);
+  }, [email, password, name, signup]);
   return (
     <Screen title="회원가입">
       {processingSignup ? (
@@ -113,7 +118,7 @@ function SignupScreen() {
             </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
               <Text>이미 계정이 있나요?</Text>
             </TouchableOpacity>
           </View>

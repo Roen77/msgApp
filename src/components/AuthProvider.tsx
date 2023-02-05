@@ -7,8 +7,10 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [processingSignup, setProcessingSignup] = useState(false);
+  const [processingSignin, setProcessingSignin] = useState(false);
   useEffect(() => {
     const unsubscribe = auth().onUserChanged(async fbUser => {
+      console.log('fnUser:', fbUser);
       if (fbUser != null) {
         setUser({
           userId: fbUser.uid,
@@ -30,6 +32,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
       setProcessingSignup(true);
 
       try {
+        console.log('pasword register', password);
         const {user: currentUser} = await auth().createUserWithEmailAndPassword(
           email,
           password,
@@ -54,14 +57,25 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
     [],
   );
 
+  const signin = useCallback(async (email: string, password: string) => {
+    setProcessingSignin(true);
+    try {
+      await auth().signInWithEmailAndPassword(email, password);
+    } finally {
+      setProcessingSignin(false);
+    }
+  }, []);
+
   const value = useMemo(() => {
     return {
       initialized,
       user,
       signup,
+      signin,
+      processingSignin,
       processingSignup,
     };
-  }, [initialized, processingSignup, signup, user]);
+  }, [initialized, processingSignin, processingSignup, signin, signup, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

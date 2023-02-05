@@ -1,5 +1,12 @@
-import React, {Children} from 'react';
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import React, {Children, useCallback, useMemo} from 'react';
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Colors from '../modules/Colors';
 
 interface ScreenProps {
@@ -7,11 +14,21 @@ interface ScreenProps {
   children?: React.ReactNode;
 }
 function Screen({title, children}: ScreenProps) {
+  const {goBack, canGoBack} = useNavigation();
+  const onPressBackButton = useCallback(() => {
+    goBack();
+  }, [goBack]);
   return (
     <SafeAreaView style={styles.container}>
       {/* header */}
       <View style={styles.header}>
-        <View style={styles.left} />
+        <View style={styles.left}>
+          {canGoBack() && (
+            <TouchableOpacity onPress={onPressBackButton}>
+              <Text>뒤로</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <View style={styles.center}>
           <Text style={styles.headerTitle}>{title}</Text>
         </View>
