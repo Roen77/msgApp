@@ -28,9 +28,11 @@ import AuthContext from './src/components/AurhContext';
 import HomeScreen from './src/HomeScreen/HomeScreen';
 import LoadingScreen from './src/LoadingScreen/LoadingScreen';
 import ChatScreen from './src/ChatScreen/ChatScreen';
+import Toast from 'react-native-toast-message';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Screens = () => {
+  usePushnotification();
   const {user, processingSignin, processingSignup, initialized} =
     useContext(AuthContext);
 
@@ -68,7 +70,6 @@ const Screens = () => {
 };
 
 function App(): JSX.Element {
-  // usePushnotification();
   useEffect(() => {
     console.log('aa');
   }, []);
@@ -76,6 +77,7 @@ function App(): JSX.Element {
   return (
     <AuthProvider>
       <Screens />
+      <Toast />
     </AuthProvider>
   );
 }

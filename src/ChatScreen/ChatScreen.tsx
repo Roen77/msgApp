@@ -1,5 +1,5 @@
 import {RouteProp, useRoute} from '@react-navigation/native';
-import React, {useCallback, useContext, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -18,7 +18,7 @@ import useChat from './userChat';
 
 function ChatScreen() {
   const {params} = useRoute<RouteProp<RootStackParamList, 'Chat'>>();
-  const {other, userIds} = params;
+  const {userIds} = params;
 
   const {user: me} = useContext(AuthContext);
   const {loadingChat, chat, sendMessage, messages, loadingMessages} =
@@ -27,6 +27,13 @@ function ChatScreen() {
   const [text, setText] = useState('');
 
   const loading = loadingChat || loadingMessages;
+
+  const other = useMemo(() => {
+    if (chat != null && me != null) {
+      return chat.users.filter(u => u.userId !== me.userId)[0];
+    }
+    return null;
+  }, [chat, me]);
 
   console.log('messagess', messages);
 
@@ -106,7 +113,7 @@ function ChatScreen() {
     );
   }, [chat, me?.userId, messages, onChangeText, onPressMessage, text]);
   return (
-    <Screen title={other.name}>
+    <Screen title={other?.name}>
       <>
         {loading ? (
           <View>

@@ -3,7 +3,7 @@ export type RootStackParamList = {
   Signin: undefined;
   Home: undefined;
   Loading: undefined;
-  Chat: {userIds: string[]; other: User};
+  Chat: {userIds: string[]};
 };
 
 export interface User {

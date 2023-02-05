@@ -66,6 +66,22 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
     }
   }, []);
 
+  //   푸시알림을 위한 토큰 만들기
+  const addFcmToken = useCallback(
+    async (token: string) => {
+      console.log('update 되는지 확인', user);
+      if (user != null) {
+        await firestore()
+          .collection(Collections.USERS)
+          .doc(user?.userId)
+          .update({
+            fcmTokens: firestore.FieldValue.arrayUnion(token),
+          });
+      }
+    },
+    [user],
+  );
+
   const value = useMemo(() => {
     return {
       initialized,
@@ -74,8 +90,17 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
       signin,
       processingSignin,
       processingSignup,
+      addFcmToken,
     };
-  }, [initialized, processingSignin, processingSignup, signin, signup, user]);
+  }, [
+    addFcmToken,
+    initialized,
+    processingSignin,
+    processingSignup,
+    signin,
+    signup,
+    user,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
