@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "828093348965",
+    "project_id": "chatapp-b25e2",
+    "storage_bucket": "chatapp-b25e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828093348965:android:72aa7de49f0e4a1b801a8c",
+        "android_client_info": {
+          "package_name": "com.roen.chatApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828093348965-hhsbo659ss5c4icsnr34sv8t4u86t9dg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYan6xgFVwM-6utbVbcdpWUBcKNRQ7XtI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "828093348965-hhsbo659ss5c4icsnr34sv8t4u86t9dg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
