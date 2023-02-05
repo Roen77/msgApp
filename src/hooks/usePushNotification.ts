@@ -7,9 +7,15 @@ const usePushnotification = () => {
   // 토큰값얻기
   useEffect(() => {
     messaging()
-      .getToken()
-      .then(token => {
-        setFcmToken(token);
+      .hasPermission()
+      .then(enabled => {
+        if (enabled) {
+          messaging()
+            .getToken()
+            .then(token => {
+              setFcmToken(token);
+            });
+        }
       });
   }, []);
   //   토큰값 만료되었는지 확인

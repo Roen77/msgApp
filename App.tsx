@@ -18,19 +18,33 @@ import {
 } from 'react-native';
 
 import usePushnotification from './src/hooks/usePushNotification';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {RootStackParamList} from './src/types';
+import SignupScreen from './src/SignupScreen/SignupScreen';
+import AuthProvider from './src/components/AuthProvider';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Screens = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="Signup" component={SignupScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
 
 function App(): JSX.Element {
-  usePushnotification();
+  // usePushnotification();
   useEffect(() => {
     console.log('aa');
   }, []);
 
   return (
-    <SafeAreaView>
-      <View>
-        <Text>dd</Text>
-      </View>
-    </SafeAreaView>
+    <AuthProvider>
+      <Screens />
+    </AuthProvider>
   );
 }
 
