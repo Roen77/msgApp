@@ -1,8 +1,10 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 import {Collections, User} from '../types';
 import AuthContext from './AurhContext';
+import _ from 'lodash';
 const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -16,6 +18,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
           userId: fbUser.uid,
           email: fbUser.email ?? '',
           name: fbUser.displayName ?? '',
+          profileUrl: fbUser.photoURL ?? '',
         });
       } else {
         setUser(null);
@@ -82,6 +85,31 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
     [user],
   );
 
+  //  이미지
+  const updateProfileImage = useCallback(
+    async (filepath: string) => {
+      if (user === null) {
+        throw new Error('user us undefined');
+      }
+      const filename = _.last(filepath.split('/'));
+
+      if (filename === null) {
+        throw new Error('filename is undefined');
+      }
+
+      const storageFilepath = `users/${user?.userId}/${filename}`;
+      await storage().ref(storageFilepath).putFile(filepath);
+      const url = await storage().ref(storageFilepath).getDownloadURL();
+
+      await auth().currentUser?.updateProfile({photoURL: url});
+      //   db저장
+      await firestore().collection(Collections.USERS).doc(user.userId).update({
+        profileUrl: url,
+      });
+    },
+    [user],
+  );
+
   const value = useMemo(() => {
     return {
       initialized,
@@ -91,6 +119,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
       processingSignin,
       processingSignup,
       addFcmToken,
+      updateProfileImage,
     };
   }, [
     addFcmToken,
@@ -99,6 +128,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
     processingSignup,
     signin,
     signup,
+    updateProfileImage,
     user,
   ]);
 

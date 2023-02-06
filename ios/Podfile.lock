@@ -623,11 +623,16 @@ PODS:
   - Firebase/Messaging (10.4.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 10.4.0)
+  - Firebase/Storage (10.4.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 10.4.0)
+  - FirebaseAppCheckInterop (10.4.0)
   - FirebaseAuth (10.4.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
     - GoogleUtilities/Environment (~> 7.8)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
+  - FirebaseAuthInterop (10.4.0)
   - FirebaseCore (10.4.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
@@ -663,6 +668,12 @@ PODS:
     - GoogleUtilities/Reachability (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - nanopb (< 2.30910.0, >= 2.30908.0)
+  - FirebaseStorage (10.4.0):
+    - FirebaseAppCheckInterop (~> 10.0)
+    - FirebaseAuthInterop (~> 10.0)
+    - FirebaseCore (~> 10.0)
+    - FirebaseCoreExtension (~> 10.0)
+    - GTMSessionFetcher/Core (< 4.0, >= 2.1)
   - fmt (6.2.1)
   - glog (0.3.5)
   - GoogleDataTransport (9.2.1):
@@ -1080,11 +1091,25 @@ PODS:
     - FirebaseCoreExtension (= 10.4.0)
     - React-Core
     - RNFBApp
+  - RNFBStorage (17.0.0):
+    - Firebase/Storage (= 10.4.0)
+    - React-Core
+    - RNFBApp
+  - RNImageCropPicker (0.39.0):
+    - React-Core
+    - React-RCTImage
+    - RNImageCropPicker/QBImagePickerController (= 0.39.0)
+    - TOCropViewController
+  - RNImageCropPicker/QBImagePickerController (0.39.0):
+    - React-Core
+    - React-RCTImage
+    - TOCropViewController
   - RNPermissions (3.6.1):
     - React-Core
   - RNScreens (3.19.0):
     - React-Core
     - React-RCTImage
+  - TOCropViewController (2.6.1)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1129,6 +1154,8 @@ DEPENDENCIES:
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBFirestore (from `../node_modules/@react-native-firebase/firestore`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
+  - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
+  - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -1138,13 +1165,16 @@ SPEC REPOS:
     - abseil
     - BoringSSL-GRPC
     - Firebase
+    - FirebaseAppCheckInterop
     - FirebaseAuth
+    - FirebaseAuthInterop
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
     - FirebaseFirestore
     - FirebaseInstallations
     - FirebaseMessaging
+    - FirebaseStorage
     - fmt
     - GoogleDataTransport
     - GoogleUtilities
@@ -1156,6 +1186,7 @@ SPEC REPOS:
     - Libuv-gRPC
     - nanopb
     - PromisesObjC
+    - TOCropViewController
 
 EXTERNAL SOURCES:
   boost:
@@ -1236,6 +1267,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/firestore"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
+  RNFBStorage:
+    :path: "../node_modules/@react-native-firebase/storage"
+  RNImageCropPicker:
+    :path: "../node_modules/react-native-image-crop-picker"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNScreens:
@@ -1251,13 +1286,16 @@ SPEC CHECKSUMS:
   FBLazyVector: ad72713385db5289b19f1ead07e8e4aa26dcb01d
   FBReactNativeSpec: df2602c11e33d310433496e28a48b4b2be652a61
   Firebase: ba3501b5142a57747eac74d27c96d2b313bdec90
+  FirebaseAppCheckInterop: ef074633831a90cf6c10e8f2c1e1f8b7842a446a
   FirebaseAuth: 5608282535d6f2dc902b2b88a379aaf6912fb837
+  FirebaseAuthInterop: fef284922da3c350f846ff85cc0dfd5186448e49
   FirebaseCore: b8697a177690b69b0dbce9d612b69b893be70469
   FirebaseCoreExtension: d209ada6f48bac53d149e996cf1b2dafa632a615
   FirebaseCoreInternal: e301297f4c15a17489e48ed722d733b1578e0c02
   FirebaseFirestore: 07d6c8950584d3c15f2fa1a58f8783a246ca95f7
   FirebaseInstallations: 36b38c733fd37e50857e5e8d74138648f466f18c
   FirebaseMessaging: e7304d6ce5f83d9139f0a61383a2302beb99b111
+  FirebaseStorage: 2fa8f1799f6ebff74c0311d9fa7e316404936080
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
@@ -1304,8 +1342,11 @@ SPEC CHECKSUMS:
   RNFBAuth: 67815464b3e716246031b18a10298f096e7d7210
   RNFBFirestore: 3f8e87a47db880f66b798b83393246330a7ddce7
   RNFBMessaging: aff7baf1b0c7c70a0fd60d5dbfbe6d1e59f3985c
+  RNFBStorage: be1609061dd036c77340f98e78596ec63f3283a3
+  RNImageCropPicker: 14fe1c29298fb4018f3186f455c475ab107da332
   RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
   RNScreens: ea4cd3a853063cda19a4e3c28d2e52180c80f4eb
+  TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
   Yoga: 921eb014669cf9c718ada68b08d362517d564e0c
 
 PODFILE CHECKSUM: 9c0341e105d4ac729868944bda1cc34ec00107b2

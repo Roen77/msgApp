@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import AuthContext from '../components/AurhContext';
 import Screen from '../components/Screen';
+import UserPhoto from '../components/UserPhoto';
 import Colors from '../modules/Colors';
 ('');
 import {RootStackParamList} from '../types';
@@ -61,18 +62,24 @@ function ChatScreen() {
             horizontal
             data={chat.users}
             renderItem={({item: user, index}) => (
-              <View
-                style={{
-                  backgroundColor: Colors.BLACK,
-                  display: 'flex',
-                  width: 30,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 10,
-                  margin: 5,
-                }}>
-                <Text style={{color: '#fff'}}>{user?.name[0]}</Text>
-              </View>
+              <UserPhoto
+                size={34}
+                name={user.name}
+                style={{justifyContent: 'center', alignItems: 'center'}}
+                imageUrl={user.profileUrl}
+              />
+              //   <View
+              //     style={{
+              //       backgroundColor: Colors.BLACK,
+              //       display: 'flex',
+              //       width: 30,
+              //       justifyContent: 'center',
+              //       alignItems: 'center',
+              //       padding: 10,
+              //       margin: 5,
+              //     }}>
+              //     <Text style={{color: '#fff'}}>{user?.name[0]}</Text>
+              //   </View>
             )}
           />
           {/* 메세지 리스트 */}
@@ -80,9 +87,13 @@ function ChatScreen() {
             inverted
             data={messages}
             renderItem={({item: message}) => {
+              const user = chat.users.find(
+                u => u.userId === message.user.userId,
+              );
               return (
                 <Message
-                  name={message.user.name}
+                  imageUrl={user?.profileUrl}
+                  name={user?.name ?? ''}
                   text={message.text}
                   createdAt={message.createdAt}
                   isOtherMessage={message.user.userId !== me?.userId}

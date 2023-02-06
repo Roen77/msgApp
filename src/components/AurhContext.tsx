@@ -9,6 +9,8 @@ export interface AuthContextProp {
   processingSignup: boolean;
   processingSignin: boolean;
   addFcmToken: (token: string) => Promise<void>;
+  //   profile image update
+  updateProfileImage: (filepath: string) => Promise<void>;
 }
 const AuthContext = createContext<AuthContextProp>({
   initialized: false,
@@ -18,6 +20,7 @@ const AuthContext = createContext<AuthContextProp>({
   processingSignup: false,
   processingSignin: false,
   addFcmToken: async () => {},
+  updateProfileImage: async () => {},
 });
 
 export default AuthContext;

@@ -10,7 +10,7 @@ export interface User {
   userId: string;
   email: string;
   name: string;
-  password?: string;
+  profileUrl?: string;
 }
 
 export enum Collections {

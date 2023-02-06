@@ -18,6 +18,16 @@ const useChat = (userIds: string[]) => {
   //   메세지 가져오기
   const [loadingMessages, setLoadingMessages] = useState(false);
 
+  //   user 불러오기
+  const loadUsers = useCallback(async (uIds: string[]) => {
+    const usersSnapShot = await firestore()
+      .collection(Collections.USERS)
+      .where('userId', 'in', uIds)
+      .get();
+
+    const users = usersSnapShot.docs.map<User>(doc => doc.data() as User);
+    return users;
+  }, []);
   const loadChat = useCallback(async () => {
     try {
       setLoadingChat(true);
@@ -30,20 +40,24 @@ const useChat = (userIds: string[]) => {
 
       if (chatSnapShot.docs.length > 0) {
         const doc = chatSnapShot.docs[0];
+        const chatUserIds = doc.data().userIds as string[];
+        const users = await loadUsers(chatUserIds);
         setChat({
           id: doc.id,
-          userIds: doc.data().userIds as string[],
-          users: doc.data().users as User[],
+          userIds: chatUserIds,
+          //   users: doc.data().users as User[],
+          users,
         });
 
         return;
       }
 
-      const usersSnapShot = await firestore()
-        .collection(Collections.USERS)
-        .where('userId', 'in', userIds)
-        .get();
-      const users = usersSnapShot.docs.map(doc => doc.data() as User);
+      //   const usersSnapShot = await firestore()
+      //     .collection(Collections.USERS)
+      //     .where('userId', 'in', userIds)
+      //     .get();
+      //   const users = usersSnapShot.docs.map(doc => doc.data() as User);
+      const users = await loadUsers(userIds);
       const data = {
         userIds: getChatKey(userIds),
         users,

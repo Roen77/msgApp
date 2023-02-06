@@ -15,6 +15,9 @@ import {Collections, RootStackParamList, User} from '../types';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
+import ImageCropPicker from 'react-native-image-crop-picker';
+import Profile from './Profile';
+import UserPhoto from '../components/UserPhoto';
 
 function HomeScreen() {
   const navigation =
@@ -22,7 +25,7 @@ function HomeScreen() {
 
   const isFocused = useIsFocused();
 
-  const {user: me} = useContext(AuthContext);
+  const {user: me, updateProfileImage} = useContext(AuthContext);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
 
@@ -55,6 +58,17 @@ function HomeScreen() {
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
+
+  //   profile
+
+  const onPressProfile = useCallback(async () => {
+    const image = await ImageCropPicker.openPicker({
+      cropping: true,
+      cropperCircleOverlay: true,
+    });
+    console.log('image', image.path);
+    await updateProfileImage(image.path);
+  }, [updateProfileImage]);
 
   //   푸시알림은 background와 quit에서 둘다 처리하는 로직 구현
   //   1. backtround
@@ -121,6 +135,7 @@ function HomeScreen() {
       unsubscribe();
     };
   }, [isFocused, navigation]);
+
   if (!me) {
     return null;
   }
@@ -130,6 +145,12 @@ function HomeScreen() {
         <Text>나의 정보</Text>
         <Text>{me.email}</Text>
         <Text>{me.name}</Text>
+      </View>
+      <View>
+        <Profile onPress={onPressProfile} imageUrl={me.profileUrl} />
+        {/* <TouchableOpacity onPress={onPressProfile}>
+          <Text>프로필 수정</Text>
+        </TouchableOpacity> */}
       </View>
       <View>
         <TouchableOpacity onPress={() => auth().signOut()}>
@@ -161,8 +182,11 @@ function HomeScreen() {
                     });
                   }}
                   style={{backgroundColor: '#ddd'}}>
-                  <Text>{user.email}</Text>
-                  <Text>{user.name}</Text>
+                  <UserPhoto imageUrl={user.profileUrl} name={user.name} />
+                  <View>
+                    <Text>{user.email}</Text>
+                    <Text>{user.name}</Text>
+                  </View>
                 </TouchableOpacity>
               )}
             />

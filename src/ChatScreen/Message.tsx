@@ -2,12 +2,14 @@ import React, {useCallback} from 'react';
 import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
 
 import moment from 'moment';
+import UserPhoto from '../components/UserPhoto';
 
 interface MessageProps {
   name: string;
   text: string;
   createdAt: Date;
   isOtherMessage: boolean;
+  imageUrl?: string;
 }
 
 const styles = StyleSheet.create({
@@ -21,7 +23,13 @@ const styles = StyleSheet.create({
 const otherMessageStyles = {
   container: [styles.container, {alignItems: 'flex-start' as const}],
 };
-function Message({name, text, createdAt, isOtherMessage}: MessageProps) {
+function Message({
+  name,
+  text,
+  createdAt,
+  isOtherMessage,
+  imageUrl,
+}: MessageProps) {
   const messageStyles = isOtherMessage ? otherMessageStyles : styles;
   const renderMessageContainer = useCallback(() => {
     const components = [
@@ -35,14 +43,24 @@ function Message({name, text, createdAt, isOtherMessage}: MessageProps) {
     return isOtherMessage ? components.reverse() : components;
   }, [createdAt, isOtherMessage, text]);
   return (
-    <View style={messageStyles.container}>
-      <Text>{name}</Text>
-      <View
-        style={{
-          flexDirection: 'row',
-          backgroundColor: 'royalblue',
-        }}>
-        {renderMessageContainer()}
+    <View>
+      {isOtherMessage && (
+        <UserPhoto
+          style={{justifyContent: 'center', alignItems: 'center'}}
+          imageUrl={imageUrl}
+          name={name}
+          size={34}
+        />
+      )}
+      <View style={messageStyles.container}>
+        <Text>{name}</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            backgroundColor: 'royalblue',
+          }}>
+          {renderMessageContainer()}
+        </View>
       </View>
     </View>
   );
