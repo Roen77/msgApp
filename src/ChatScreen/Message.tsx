@@ -10,6 +10,7 @@ interface MessageProps {
   createdAt: Date;
   isOtherMessage: boolean;
   imageUrl?: string;
+  unreadCount?: number;
 }
 
 const styles = StyleSheet.create({
@@ -29,19 +30,24 @@ function Message({
   createdAt,
   isOtherMessage,
   imageUrl,
+  unreadCount = 0,
 }: MessageProps) {
   const messageStyles = isOtherMessage ? otherMessageStyles : styles;
   const renderMessageContainer = useCallback(() => {
     const components = [
-      <Text key="timeText" style={styles.timeText}>
-        {moment(createdAt).format('HH:mm')}
-      </Text>,
+      <View key="metainfo">
+        {unreadCount > 0 && <Text>안읽음 {unreadCount} </Text>}
+        <Text key="timeText" style={styles.timeText}>
+          {moment(createdAt).format('HH:mm')}
+        </Text>
+      </View>,
+
       <View style={{flexShrink: 1}} key="message">
         <Text>{text}</Text>
       </View>,
     ];
     return isOtherMessage ? components.reverse() : components;
-  }, [createdAt, isOtherMessage, text]);
+  }, [createdAt, isOtherMessage, text, unreadCount]);
   return (
     <View>
       {isOtherMessage && (

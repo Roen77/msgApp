@@ -1,5 +1,12 @@
 import {RouteProp, useRoute} from '@react-navigation/native';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import moment from 'moment';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -22,12 +29,25 @@ function ChatScreen() {
   const {userIds} = params;
 
   const {user: me} = useContext(AuthContext);
-  const {loadingChat, chat, sendMessage, messages, loadingMessages} =
-    useChat(userIds);
+  const {
+    loadingChat,
+    chat,
+    sendMessage,
+    messages,
+    loadingMessages,
+    updateMessageReadAt,
+    userToMessageReadAt,
+  } = useChat(userIds);
 
   const [text, setText] = useState('');
 
   const loading = loadingChat || loadingMessages;
+
+  useEffect(() => {
+    if (me != null && messages.length > 0) {
+      updateMessageReadAt(me?.userId);
+    }
+  }, [me, me?.userId, messages.length, updateMessageReadAt]);
 
   const other = useMemo(() => {
     if (chat != null && me != null) {
@@ -90,6 +110,15 @@ function ChatScreen() {
               const user = chat.users.find(
                 u => u.userId === message.user.userId,
               );
+              const unreadUsers = chat.users.filter(u => {
+                const messageReadAt = userToMessageReadAt[u.userId] ?? null;
+                if (messageReadAt == null) {
+                  return true;
+                }
+                return moment(messageReadAt).isBefore(message.createdAt);
+              });
+
+              const unreadCount = unreadUsers.length;
               return (
                 <Message
                   imageUrl={user?.profileUrl}
@@ -97,6 +126,7 @@ function ChatScreen() {
                   text={message.text}
                   createdAt={message.createdAt}
                   isOtherMessage={message.user.userId !== me?.userId}
+                  unreadCount={unreadCount}
                 />
               );
             }}
@@ -122,7 +152,15 @@ function ChatScreen() {
         </View>
       </View>
     );
-  }, [chat, me?.userId, messages, onChangeText, onPressMessage, text]);
+  }, [
+    chat,
+    me?.userId,
+    messages,
+    onChangeText,
+    onPressMessage,
+    text,
+    userToMessageReadAt,
+  ]);
   return (
     <Screen title={other?.name}>
       <>
