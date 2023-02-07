@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ImageCropPicker from 'react-native-image-crop-picker';
 import AuthContext from '../components/AurhContext';
 import Screen from '../components/Screen';
 import UserPhoto from '../components/UserPhoto';
@@ -37,6 +38,8 @@ function ChatScreen() {
     loadingMessages,
     updateMessageReadAt,
     userToMessageReadAt,
+    sendImageMessage,
+    sending,
   } = useChat(userIds);
 
   const [text, setText] = useState('');
@@ -69,6 +72,13 @@ function ChatScreen() {
   const onChangeText = useCallback((newText: string) => {
     setText(newText);
   }, []);
+
+  const onPressImageButton = useCallback(async () => {
+    if (me !== null) {
+      const image = await ImageCropPicker.openPicker({cropping: true});
+      sendImageMessage(image.path, me);
+    }
+  }, [me, sendImageMessage]);
 
   const renderChat = useCallback(() => {
     if (chat === null) {
@@ -119,16 +129,37 @@ function ChatScreen() {
               });
 
               const unreadCount = unreadUsers.length;
-              return (
-                <Message
-                  imageUrl={user?.profileUrl}
-                  name={user?.name ?? ''}
-                  text={message.text}
-                  createdAt={message.createdAt}
-                  isOtherMessage={message.user.userId !== me?.userId}
-                  unreadCount={unreadCount}
-                />
-              );
+
+              const commonProps = {
+                userImageUrl: user?.profileUrl,
+                name: user?.name ?? '',
+                createdAt: message.createdAt,
+                isOtherMessage: message.user.userId !== me?.userId,
+                unreadCount: unreadCount,
+              };
+              if (message.text != null) {
+                return (
+                  <Message {...commonProps} message={{text: message.text}} />
+                );
+              }
+
+              if (message.imageUrl != null) {
+                return (
+                  <Message {...commonProps} message={{url: message.imageUrl}} />
+                );
+              }
+
+              return null;
+            }}
+            ListHeaderComponent={() => {
+              if (sending) {
+                return (
+                  <View>
+                    <ActivityIndicator />
+                  </View>
+                );
+              }
+              return null;
             }}
           />
         </View>
@@ -149,6 +180,9 @@ function ChatScreen() {
           <TouchableOpacity onPress={onPressMessage}>
             <Text>send</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={onPressImageButton}>
+            <Text>send 이미지</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -157,7 +191,9 @@ function ChatScreen() {
     me?.userId,
     messages,
     onChangeText,
+    onPressImageButton,
     onPressMessage,
+    sending,
     text,
     userToMessageReadAt,
   ]);
