@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Text,
   TextInput,
@@ -23,6 +24,7 @@ import Colors from '../modules/Colors';
 ('');
 import {RootStackParamList} from '../types';
 import Message from './Message';
+import MicButton from './MicButton';
 import useChat from './userChat';
 
 function ChatScreen() {
@@ -40,6 +42,7 @@ function ChatScreen() {
     userToMessageReadAt,
     sendImageMessage,
     sending,
+    sendAudioMessage,
   } = useChat(userIds);
 
   const [text, setText] = useState('');
@@ -79,6 +82,27 @@ function ChatScreen() {
       sendImageMessage(image.path, me);
     }
   }, [me, sendImageMessage]);
+
+  //   음성메세지
+  const onRecorded = useCallback(
+    (path: string) => {
+      Alert.alert('녹음 완료', '음성 메세지를 보낼까요?', [
+        {
+          text: '아니오',
+        },
+        {
+          text: '네',
+          onPress: () => {
+            console.log('path:', path);
+            if (me != null) {
+              sendAudioMessage(path, me);
+            }
+          },
+        },
+      ]);
+    },
+    [me, sendAudioMessage],
+  );
 
   const renderChat = useCallback(() => {
     if (chat === null) {
@@ -145,7 +169,18 @@ function ChatScreen() {
 
               if (message.imageUrl != null) {
                 return (
-                  <Message {...commonProps} message={{url: message.imageUrl}} />
+                  <Message
+                    {...commonProps}
+                    message={{imageUrl: message.imageUrl}}
+                  />
+                );
+              }
+              if (message.audioUrl != null) {
+                return (
+                  <Message
+                    {...commonProps}
+                    message={{audioUrl: message.audioUrl}}
+                  />
                 );
               }
 
@@ -183,6 +218,9 @@ function ChatScreen() {
           <TouchableOpacity onPress={onPressImageButton}>
             <Text>send 이미지</Text>
           </TouchableOpacity>
+          <View>
+            <MicButton onRecorded={onRecorded} />
+          </View>
         </View>
       </View>
     );
@@ -193,6 +231,7 @@ function ChatScreen() {
     onChangeText,
     onPressImageButton,
     onPressMessage,
+    onRecorded,
     sending,
     text,
     userToMessageReadAt,

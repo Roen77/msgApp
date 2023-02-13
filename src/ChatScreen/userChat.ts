@@ -120,6 +120,7 @@ const useChat = (userIds: string[]) => {
             text,
             user,
             imageUrl: null,
+            audioUrl: null,
             createdAt: new Date(),
           },
         ]);
@@ -197,6 +198,7 @@ const useChat = (userIds: string[]) => {
               text: docData.text ?? null,
               user: docData.user,
               imageUrl: docData.imageUrl ?? null,
+              audioUrl: docData.audioUrl ?? null,
               createdAt: docData.createdAt.toDate(),
             };
 
@@ -304,6 +306,59 @@ const useChat = (userIds: string[]) => {
             id: doc.id,
             text: null,
             imageUrl: url,
+            audioUrl: null,
+            user,
+            createdAt: new Date(),
+          },
+        ]);
+      } finally {
+        setSending(false);
+      }
+    },
+    [addNewMessages, chat],
+  );
+
+  //   오디오 전송하는 메세지
+  const sendAudioMessage = useCallback(
+    async (filepath: string, user: User) => {
+      setSending(true);
+      try {
+        if (chat == null) {
+          throw new Error('undefined chat');
+        }
+        if (user == null) {
+          throw new Error('undefined user');
+        }
+
+        const originalFilename = _.last(filepath.split('/'));
+        if (originalFilename == null) {
+          throw new Error('undfined filename');
+        }
+
+        //originalFilename aaa.png
+        const fileExt = originalFilename.split('.')[1];
+        const filename = `${Date.now()}.${fileExt}`;
+        const storagePath = `chat/${chat.id}/${filename}`;
+        await storage().ref(storagePath).putFile(filepath);
+
+        const url = await storage().ref(storagePath).getDownloadURL();
+
+        const doc = await firestore()
+          .collection(Collections.CHATS)
+          .doc(chat?.id)
+          .collection(Collections.MESSAGES)
+          .add({
+            audioUrl: url,
+            user,
+            createdAt: firestore.FieldValue.serverTimestamp(),
+          });
+
+        addNewMessages([
+          {
+            id: doc.id,
+            text: null,
+            imageUrl: null,
+            audioUrl: url,
             user,
             createdAt: new Date(),
           },
@@ -325,6 +380,7 @@ const useChat = (userIds: string[]) => {
     updateMessageReadAt,
     userToMessageReadAt,
     sendImageMessage,
+    sendAudioMessage,
   };
 };
 

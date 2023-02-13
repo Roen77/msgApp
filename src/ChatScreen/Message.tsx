@@ -4,17 +4,21 @@ import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
 import moment from 'moment';
 import UserPhoto from '../components/UserPhoto';
 import ImageMessage from './ImageMessage';
+import AudioMessage from './AudioMessage';
 
 interface TextMessage {
   text: string;
 }
 
 interface ImageMessageProp {
-  url: string;
+  imageUrl: string;
+}
+interface AudioMessageProp {
+  audioUrl: string;
 }
 interface MessageProps {
   name: string;
-  message: TextMessage | ImageMessageProp;
+  message: TextMessage | ImageMessageProp | AudioMessageProp;
   createdAt: Date;
   isOtherMessage: boolean;
   userImageUrl?: string;
@@ -46,10 +50,15 @@ function Message({
       return <Text>{message.text}</Text>;
     }
 
-    if ('url' in message) {
-      return <ImageMessage url={message.url} />;
+    if ('imageUrl' in message) {
+      return <ImageMessage url={message.imageUrl} />;
     }
-  }, [message]);
+    if ('audioUrl' in message) {
+      return (
+        <AudioMessage url={message.audioUrl} isOtherMessage={isOtherMessage} />
+      );
+    }
+  }, [isOtherMessage, message]);
   const renderMessageContainer = useCallback(() => {
     const components = [
       <View key="metainfo">
